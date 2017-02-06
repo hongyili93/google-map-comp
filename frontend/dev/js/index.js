@@ -8,6 +8,8 @@ import promise from 'redux-promise';
 import createLogger from 'redux-logger';
 import allReducers from './reducers';
 import App from './components/App';
+import Map from 'google-maps-react'
+import Test from './components/Test'
 
 const logger = createLogger();
 const store = createStore(
@@ -16,6 +18,8 @@ const store = createStore(
 );
 
 ReactDOM.render(
+    //<Test google={window.google} />,
+    //<Map google={window.google} />,
     <Provider store={store}>
         <App />
     </Provider>,
