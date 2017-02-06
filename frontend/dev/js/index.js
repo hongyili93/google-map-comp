@@ -9,7 +9,8 @@ import createLogger from 'redux-logger';
 import allReducers from './reducers';
 import App from './components/App';
 import Map from 'google-maps-react'
-import Test from './components/Test'
+import {Router, hashHistory, Redirect, Route, IndexRoute, Link} from 'react-router'
+import Container from './containers/Container'
 
 const logger = createLogger();
 const store = createStore(
@@ -17,11 +18,45 @@ const store = createStore(
     applyMiddleware(thunk, promise, logger)
 );
 
-ReactDOM.render(
-    //<Test google={window.google} />,
-    //<Map google={window.google} />,
-    <Provider store={store}>
-        <App />
-    </Provider>,
-    document.getElementById('root')
-);
+const routeMap = {
+  'home': {
+    name: 'Home',
+    component: require('./components/App').default
+  },
+  'map': {
+    name: 'Google Map',
+    component: require('./components/Test').default
+  }
+}
+
+const createElement = (Component, props) => {
+  const pathname = props.location.pathname.replace('/', '')
+  const routeDef = routeMap[pathname];
+  const newProps = {
+    routeMap, pathname, routeDef
+  }
+  return <Component {...newProps} {...props} />
+}
+
+const routes = (
+  <Provider store={store}>
+  <Router createElement={createElement}
+          history={hashHistory}>
+    <Route component={Container}
+           path='/'>
+      {Object.keys(routeMap).map(key => {
+        const r = routeMap[key]
+        return (<Route
+                key={key}
+                path={key}
+                name={r.name}
+                component={r.component} />)
+      })}
+      <IndexRoute component={routeMap['map'].component} />
+    </Route>
+  </Router>
+  </Provider>
+)
+
+const mountNode = document.getElementById('root');
+ReactDOM.render(routes, mountNode);
